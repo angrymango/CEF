@@ -4,10 +4,7 @@
 #include "client_handler.h"
 #include "resource_util.h"
 #include "string_util.h"
-#include <iostream>
 #include <gtk/gtk.h>
-
-using namespace std;
 
 // ClientHandler::ClientLifeSpanHandler implementation
 bool ClientHandler::OnBeforePopup(CefRefPtr<CefBrowser> parentBrowser,
@@ -71,29 +68,71 @@ void ClientHandler::OnAddressChange(CefRefPtr<CefBrowser> browser,
                                     const CefString& url)
 {
   REQUIRE_UI_THREAD();
-  GtkWidget* widget = GTK_WIDGET(browser->GetWindowHandle());
-  gtk_widget_grab_focus(widget);
+
+  if(m_BrowserHwnd == browser->GetWindowHandle() && frame->IsMain())
+  {
+      // Set the edit window text
+	  std::string urlStr(url);
+      gtk_entry_set_text(GTK_ENTRY(m_EditHwnd), urlStr.c_str());
+  }
 }
 
 void ClientHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
                                   const CefString& title)
 {
   REQUIRE_UI_THREAD();
+
+  GtkWidget* window = gtk_widget_get_ancestor(GTK_WIDGET(browser->GetWindowHandle()), GTK_TYPE_WINDOW);
+  std::string titleStr(title);
+  gtk_window_set_title(GTK_WINDOW(window), titleStr.c_str());
 }
 
 void ClientHandler::SendNotification(NotificationType type)
 {
+	/*SEL sel = nil;
 
+	switch(type) {
+		case NOTIFY_CONSOLE_MESSAGE:
+			sel = @selector(notifyConsoleMessage:);
+			break;
+	    case NOTIFY_DOWNLOAD_COMPLETE:
+	    	sel = @selector(notifyDownloadComplete:);
+	    	break;
+	    case NOTIFY_DOWNLOAD_ERROR:
+	    	sel = @selector(notifyDownloadError:);
+	    	break;
+	}
+
+	if(sel == nil)
+		return;
+
+	NSWindow* window = [AppGetMainHwnd() window];
+	NSObject* delegate = [window delegate];
+	[delegate performSelectorOnMainThread:sel withObject:nil waitUntilDone:NO];*/
 }
 
 void ClientHandler::SetLoading(bool isLoading)
 {
-  // TODO(port): Change button status.
+	if(isLoading) {
+		gtk_widget_set_sensitive(GTK_WIDGET(m_StopHwnd), true);
+	} else {
+		gtk_widget_set_sensitive(GTK_WIDGET(m_StopHwnd), false);
+	}
 }
 
 void ClientHandler::SetNavState(bool canGoBack, bool canGoForward)
 {
-  // TODO(port): Change button status.
+	if(canGoBack) {
+		gtk_widget_set_sensitive(GTK_WIDGET(m_BackHwnd), true);
+	} else {
+		gtk_widget_set_sensitive(GTK_WIDGET(m_BackHwnd), false);
+	}
+
+	if(canGoForward) {
+		gtk_widget_set_sensitive(GTK_WIDGET(m_ForwardHwnd), true);
+	} else {
+		gtk_widget_set_sensitive(GTK_WIDGET(m_ForwardHwnd), false);
+	}
 }
 
 void ClientHandler::CloseMainWindow()

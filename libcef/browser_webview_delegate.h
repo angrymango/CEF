@@ -97,6 +97,9 @@ class BrowserWebViewDelegate : public WebKit::WebViewClient,
       OVERRIDE;
   virtual bool runModalBeforeUnloadDialog(
       WebKit::WebFrame* frame, const WebKit::WebString& message) OVERRIDE;
+#ifdef OS_LINUX
+  void handleContextMenu(int selected_id);
+#endif
   virtual void showContextMenu(
       WebKit::WebFrame* frame, const WebKit::WebContextMenuData& data) OVERRIDE;
   virtual void setStatusText(const WebKit::WebString& text) OVERRIDE;

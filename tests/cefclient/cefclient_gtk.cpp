@@ -12,9 +12,6 @@
 #include "string_util.h"
 #include <iostream>
 
-//#include "ui/base/resource/resource_bundle.h"
-//#include "base/path_service.h"
-
 using namespace std;
 
 char szWorkingDir[512]; // The current working directory
@@ -311,6 +308,17 @@ GtkWidget* CreateMenuBar() {
 	return menu_bar;
 }
 
+// WebViewDelegate::TakeFocus in the test webview delegate.
+static gboolean HandleFocus(GtkWidget* widget,
+                            GdkEventFocus* focus) {
+	if(g_handler.get() && g_handler->GetBrowserHwnd()) {
+	    // Give focus to the browser window.
+	    g_handler->GetBrowser()->SetFocus(true);
+	}
+
+	return TRUE;
+}
+
 int main(int argc, char *argv[]) {
     getcwd(szWorkingDir, sizeof (szWorkingDir));
 
@@ -320,15 +328,12 @@ int main(int argc, char *argv[]) {
 
     CefSettings settings;
     CefInitialize(settings);
-	
-	//FilePath data_path;
-  	//PathService::Get(base::DIR_EXE, &data_path);
-  	//data_path = data_path.Append("chrome.pak");
-  	//ResourceBundle::InitSharedInstanceForTest(data_path);
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
-    gtk_window_set_title(GTK_WINDOW(window), "CEF Client");
+
+    g_signal_connect(window, "focus",
+                         G_CALLBACK(&HandleFocus), NULL);
 
     GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
 
@@ -363,7 +368,6 @@ int main(int argc, char *argv[]) {
     GtkWidget* m_editWnd = gtk_entry_new();
 	g_signal_connect(G_OBJECT(m_editWnd), "activate",
                    G_CALLBACK(URLEntryActivate), NULL);
-    gtk_entry_set_text(GTK_ENTRY(m_editWnd), "http://www.google.com");
 
     GtkToolItem* tool_item = gtk_tool_item_new();
     gtk_container_add(GTK_CONTAINER(tool_item), m_editWnd);
@@ -378,6 +382,8 @@ int main(int argc, char *argv[]) {
     // Create the handler.
     g_handler = new ClientHandler();
     g_handler->SetMainHwnd(vbox);
+    g_handler->SetEditHwnd(m_editWnd);
+    g_handler->SetButtonHwnds(GTK_WIDGET(back), GTK_WIDGET(forward), GTK_WIDGET(reload), GTK_WIDGET(stop));
 
     // Create the browser view.
     CefWindowInfo window_info;

@@ -227,6 +227,9 @@ class WebWidgetHostGtkWidget {
       return FALSE;  // We do not forward any other buttons to the renderer.
     if (event->type == GDK_2BUTTON_PRESS || event->type == GDK_3BUTTON_PRESS)
       return FALSE;
+
+    gtk_widget_grab_focus(widget);
+
     host->webwidget()->handleInputEvent(
         WebInputEventFactory::mouseEvent(event));
     return FALSE;

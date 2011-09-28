@@ -736,7 +736,7 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(const CefString& key)
     return NULL;
   if(!GetHandle()->IsObject()) {
     NOTREACHED();
-    return false;
+    return NULL;
   }
  
   v8::HandleScope handle_scope;
@@ -749,7 +749,7 @@ CefRefPtr<CefV8Value> CefV8ValueImpl::GetValue(int index)
   CEF_REQUIRE_UI_THREAD(NULL);
   if(!GetHandle()->IsObject()) {
     NOTREACHED();
-    return false;
+    return NULL;
   }
 
   v8::HandleScope handle_scope;

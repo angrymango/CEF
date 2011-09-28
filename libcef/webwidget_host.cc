@@ -78,7 +78,7 @@ gfx::PluginWindowHandle WebWidgetHost::GetWindowedPluginAt(int x, int y)
     }
   }
 
-  return NULL;
+  return gfx::kNullPluginWindow;
 }
 
 void WebWidgetHost::DoPaint() {

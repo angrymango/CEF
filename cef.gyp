@@ -4,6 +4,7 @@
 
 {
   'variables': {
+    'pkg-config': 'pkg-config',
     'chromium_code': 1,
   },
   'targets': [
@@ -171,9 +172,45 @@
           ],
         }],
         [ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
-          'sources': [
-            'tests/cefclient/cefclient_gtk.cpp',
-          ],
+	    	'variables': {
+               'repack_path': '../tools/grit/grit/format/repack.py',
+            },
+            'actions': [
+            {
+                # TODO(mark): Make this work with more languages than the
+            	# hardcoded en-US.
+             	'action_name': 'repack_locale',
+                'variables': {
+                   'pak_inputs': [
+                      '<(SHARED_INTERMEDIATE_DIR)/net/net_resources.pak',
+                      '<(SHARED_INTERMEDIATE_DIR)/ui/gfx/gfx_resources.pak',
+                      '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_chromium_resources.pak',
+                      '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_strings_en-US.pak',
+                      '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_resources.pak',
+                    ],
+                 },
+                 'inputs': [
+                    '<(repack_path)',
+                    '<@(pak_inputs)',
+                  ],
+                  'outputs': [
+                    '<(PRODUCT_DIR)/cefclient.pak',
+                  ],
+                  'action': ['python', '<(repack_path)', '<@(_outputs)', '<@(pak_inputs)'],
+               },
+            ],
+	    	'sources': [
+                'tests/cefclient/cefclient_gtk.cpp',
+                'tests/cefclient/client_handler_gtk.cpp',
+                'tests/cefclient/resource_util_linux.cpp',
+            ],
+ 	    	'dependencies':[
+				'../third_party/libpng/libpng.gyp:libpng',
+                '../third_party/libxml/libxml.gyp:libxml',		
+                '../third_party/zlib/zlib.gyp:zlib',	
+				'../media/media.gyp:media',
+            	'../net/net.gyp:net',
+	    	]
         }],
       ],
     },
@@ -212,6 +249,17 @@
         '.',
         '..',
       ],
+      'conditions': [
+	  ['OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+	      'dependencies':[
+		 '../third_party/libpng/libpng.gyp:libpng',
+                 '../third_party/libxml/libxml.gyp:libxml',		
+                 '../third_party/zlib/zlib.gyp:zlib',	
+		 '../media/media.gyp:media',
+                 '../net/net.gyp:net',
+	      ]	
+	   }]
+        ]
     },
     {
       'target_name': 'libcef',
@@ -403,7 +451,22 @@
               '-lcomctl32.lib',
             ],
           },
-        }]
+        }],
+	[ 'OS=="linux" or OS=="freebsd" or OS=="openbsd"', {
+	    'direct_dependent_settings': {
+                'cflags': [
+                  '<!@(<(pkg-config) --cflags gtk+-2.0 gthread-2.0)',
+                ],
+       	    },
+            'link_settings': {
+                'ldflags': [
+                  '<!@(<(pkg-config) --libs-only-L --libs-only-other gtk+-2.0 gthread-2.0)',
+                ],
+                'libraries': [
+                  '<!@(<(pkg-config) --libs-only-l gtk+-2.0 gthread-2.0)',
+                ],
+             },
+      	}],
       ],
     },
     {

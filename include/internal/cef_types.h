@@ -598,6 +598,26 @@ enum cef_v8_propertyattribute_t
   V8_PROPERTY_ATTRIBUTE_DONTDELETE = 1 << 2   // Not configurable
 };
 
+typedef struct _cef_handler_menuitem_t
+{
+  int action;
+  int type;
+  int enabled;
+  int checked;
+
+  cef_string_utf8_t label;
+} cef_handler_menuitem_t;
+
+// The cef_handler_menuinfo_t typeFlags value will be a combination of the
+// following values.
+enum cef_handler_menuitemtype_t
+{
+  MENUITEMTYPE_SEPERATOR = 1,
+  MENUITEMTYPE_OPTION,
+  MENUITEMTYPE_CHECKABLEOPTION,
+  MENUITEMTYPE_GROUP,
+};
+
 ///
 // Structure representing menu information.
 ///
@@ -628,6 +648,10 @@ typedef struct _cef_handler_menuinfo_t
   int editFlags;
 
   cef_string_t securityInfo;
+
+  int customSize;
+  cef_handler_menuitem_t* customItems;
+
 } cef_handler_menuinfo_t;
 
 ///
@@ -718,6 +742,7 @@ enum cef_handler_menuid_t
   MENU_ID_SELECTALL = 26,
   MENU_ID_PRINT = 30,
   MENU_ID_VIEWSOURCE = 31,
+  MENU_ID_CUSTOM = 100, //used for custom menu items from js. Needs to be last
 };
 
 enum cef_paint_element_type_t

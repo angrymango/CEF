@@ -1075,6 +1075,7 @@ CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(
   info.SetAsPopup(NULL, CefString());
 #endif
 
+#if defined(OS_WIN) or defined(OS_MACOSX)
   // Default to the size from the popup features.
   if(features.xSet)
     info.m_x = features.x;
@@ -1084,6 +1085,7 @@ CefRefPtr<CefBrowserImpl> CefBrowserImpl::UIT_CreatePopupWindow(
     info.m_nWidth = features.width;
   if(features.heightSet)
     info.m_nHeight = features.height;
+#endif
 
   CefRefPtr<CefClient> client = client_;
 
@@ -1223,6 +1225,9 @@ void CefBrowserImpl::UIT_HandleAction(cef_handler_menuid_t menuId,
       if(web_frame)
         UIT_ViewDocumentString(web_frame);
       break;
+    case MENU_ID_CUSTOM:
+    	//TODO: handle custom context menu options from js
+    	break;
   }
 }
 

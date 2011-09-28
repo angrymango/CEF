@@ -13,7 +13,7 @@
 bool LoadBinaryResource(int binaryId, DWORD &dwSize, LPBYTE &pBytes);
 CefRefPtr<CefStreamReader> GetBinaryResourceReader(int binaryId);
 
-#elif defined(OS_MACOSX)
+#elif defined(OS_MACOSX) or defined(OS_POSIX)
 
 // Load the resource with the specified name.
 bool LoadBinaryResource(const char* resource_name, std::string& resource_data);
